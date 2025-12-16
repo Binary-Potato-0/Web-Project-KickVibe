@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KickVibe | Urban Footwear Store</title>
+    <meta name="description" content="Trendy, comfortable, and high-quality shoes for the modern generation.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="flex">
+        <div class="flex nav-content" style="width: 100%; padding: 0 20px;">
+            <a href="#" id="logo-link" class="logo">Kick<span>Vibe</span></a> 
+            
+            <nav class="nav-links flex">
+                <a data-view="home">Home</a>
+                <a data-view="shop">Shop</a>
+                <a data-view="community">Community</a>
+                <a data-view="about">About</a>
+            </nav>
+
+            <div class="nav-actions flex">
+                <button class="btn-icon" id="nav-cart-btn">
+                    🛒 <span id="badge-cart" class="badge hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <section id="view-home" class="view active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>NEXT LEVEL <br><span class="text-primary">COMFORT.</span></h1>
+                    <p>Experience the "Smart Outfit" technology. <br>Preview shoes in different environments before you buy.</p>
+                    <button class="btn" id="hero-explore-btn">Explore Collection</button>
+                </div>
+            </div>
+            <div style="margin-top: 40px;">
+                <h2 style="margin-bottom: 20px;">New Arrivals</h2>
+                <div id="featured-grid" class="product-grid grid"></div>
+            </div>
+        </section>
+
+        <section id="view-shop" class="view">
+            <div class="flex" style="justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+                <h2>Shop All</h2>
+                <input type="text" class="input" style="width: 250px;" placeholder="Search shoes..." id="shop-search-input">
+            </div>
+            <div id="shop-grid" class="product-grid grid"></div>
+        </section>
+
+        <section id="view-detail" class="view">
+            <button id="back-to-shop-btn" style="color:#888; background:none; margin: 20px 0;">&larr; Back to Shop</button>
+            <div id="detail-content"></div> </section>
+
+        <section id="view-cart" class="view">
+            <h2 style="margin: 20px 0;">Your Cart</h2>
+            <div id="cart-list" class="grid"></div>
+            <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; text-align: right;">
+                <h3>Total: <span class="text-primary" id="cart-total">$0.00</span></h3>
+                <button class="btn" style="margin-top: 15px;" id="checkout-btn">Checkout</button>
+            </div>
+        </section>
+
+        <section id="view-community" class="view">
+            <div style="margin-top: 30px; margin-bottom: 20px;">
+                <h1>Community Vibes</h1>
+                <p style="color: var(--text-muted);">See how our community wears KickVibe in the real world. #KickVibeStyle</p>
+            </div>
+            
+            <div class="ugc-grid" id="ugc-container">
+                </div>
+        </section>
+        
+        <section id="view-about" class="view">
+            <div style="max-width: 600px; margin: 40px auto; text-align: center;">
+                <h1 style="margin-bottom: 20px;">About KickVibe</h1>
+                <p style="color: var(--text-muted); line-height: 1.8;">
+                    KickVibe is a digital footwear brand offering trendy, comfortable, and high-quality shoes specifically designed for young adults. We focus on crafting versatile shoe designs with a modern urban feel, while keeping affordability in mind.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="contact-widget">
+        <div id="contact-menu" class="contact-menu hidden">
+            <a href="https://wa.me/1234567890" target="_blank" class="contact-item">
+                <span>💬</span> WhatsApp
+            </a>
+            <a href="mailto:support@kickvibe.com" class="contact-item">
+                <span>✉️</span> Email Us
+            </a>
+        </div>
+        <button class="contact-fab" id="contact-fab-btn">
+            💬
+        </button>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
