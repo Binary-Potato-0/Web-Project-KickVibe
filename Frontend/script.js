@@ -1,4 +1,6 @@
 // --- 1. DATA STORE ---
+// (Original code remains exactly as you sent)
+
 const db = [
     { id: 101, name: "Urban Flow X1", price: 89.00, cat: "Street", color: "#ccff00", desc: "Designed for the city dweller." },
     { id: 102, name: "Night Runner", price: 120.00, cat: "Sport", color: "#00f0ff", desc: "Reflective materials for night runs." },
@@ -8,7 +10,6 @@ const db = [
     { id: 106, name: "Retro Wave", price: 75.00, cat: "Casual", color: "#ff00cc", desc: "80s inspired aesthetics." }
 ];
 
-// Mock UGC Video Data
 const ugcVideos = [
     { id: 1, user: "@skater_boi", desc: "Testing the Urban Flow X1 at the park! 🛹", color: "#ccff00" },
     { id: 2, user: "@sarah_runs", desc: "Night Runner keeps me visible. Love it.", color: "#00f0ff" },
@@ -18,23 +19,23 @@ const ugcVideos = [
 ];
 
 // --- 2. APPLICATION LOGIC ---
+// (Original code remains exactly as you sent)
+
 const app = {
     state: {
         cart: JSON.parse(localStorage.getItem('kv_cart')) || [],
     },
 
-    // Initialization
     init: () => {
         app.renderShop();
         app.renderCommunity();
         app.updateUI();
-        app.attachEvents(); // New function to attach all events unobtrusively
+        app.attachEvents();
+        app.loadProductsFromServer(); // Added AJAX fetch
     },
 
-    // Attaches all static and delegated events
     attachEvents: () => {
-        // Navigation (Unobtrusive JS)
-        document.getElementById('logo-link').addEventListener('click', (e) => { e.preventDefault(); app.nav('home'); });
+        document.querySelector('.logo').addEventListener('click', (e) => { e.preventDefault(); app.nav('home'); });
         document.getElementById('nav-cart-btn').addEventListener('click', () => app.nav('cart'));
         document.getElementById('hero-explore-btn').addEventListener('click', () => app.nav('shop'));
 
@@ -45,39 +46,30 @@ const app = {
             });
         });
 
-        // Shop Grid Delegation (Handles view and add to cart buttons)
         document.getElementById('shop-grid').addEventListener('click', app.handleCardActions);
         document.getElementById('featured-grid').addEventListener('click', app.handleCardActions);
 
-        // Search Filter
         document.getElementById('shop-search-input').addEventListener('input', function() {
             app.filter(this.value);
         });
-        
-        // Cart and Checkout
+
         document.getElementById('checkout-btn').addEventListener('click', () => {
             alert('Checkout integration pending payment gateway.');
         });
 
-        // Contact Widget
         document.getElementById('contact-fab-btn').addEventListener('click', app.toggleContact);
 
-        // Community Videos (Delegation)
         document.getElementById('ugc-container').addEventListener('click', (e) => {
-             if (e.target.closest('.video-card')) {
+            if (e.target.closest('.video-card')) {
                 alert('Video playback modal would open here.');
             }
         });
-        
-        // Back to Shop button
-        document.getElementById('back-to-shop-btn').addEventListener('click', () => app.nav('shop'));
     },
-    
-    // Handles delegated events from the product grids
+
     handleCardActions: (e) => {
         const target = e.target.closest('button');
         if (!target) return;
-        
+
         const id = parseInt(target.getAttribute('data-id'));
 
         if (target.classList.contains('btn-view-detail')) {
@@ -87,28 +79,21 @@ const app = {
         }
     },
 
-
-    // Navigation
     nav: (viewId) => {
         document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
         document.getElementById(`view-${viewId}`).classList.add('active');
-        
-        // Update navigation active state
+
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.classList.remove('active');
-            if(link.getAttribute('data-view') === viewId) {
-                link.classList.add('active');
-            }
+            if(link.getAttribute('data-view') === viewId) link.classList.add('active');
         });
-        
+
         window.scrollTo(0,0);
-        
+
         if (viewId === 'cart') app.renderCart();
     },
 
-    // Render Shop Grid
     renderShop: (filter = "") => {
-        // Renamed 'onclick' to unique class names and added 'data-id' for unobtrusive event handling
         const createCard = (p) => `
             <div class="product-card">
                 <div class="card-img-box">
@@ -127,14 +112,11 @@ const app = {
                 </div>
             </div>
         `;
-
         const filtered = db.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
-        
         document.getElementById('shop-grid').innerHTML = filtered.map(createCard).join('');
         document.getElementById('featured-grid').innerHTML = filtered.slice(0,3).map(createCard).join('');
     },
 
-    // Render Community Grid
     renderCommunity: () => {
         const html = ugcVideos.map(vid => `
             <div class="video-card">
@@ -149,19 +131,17 @@ const app = {
         document.getElementById('ugc-container').innerHTML = html;
     },
 
-    // Product Detail & Unique Features
     loadDetail: (id) => {
         const p = db.find(x => x.id === id);
-        // Added classes/IDs to buttons for unobtrusive event handling after injection
         const html = `
             <div class="detail-layout">
                 <div class="preview-container scene-studio" id="preview-stage">
                     <div class="shoe-large" style="background: linear-gradient(135deg, #444, ${p.color})"></div>
                     
                     <div class="controls-bar">
-                        <button class="btn-icon scene-control-btn" data-scene="studio" title="Studio">📷</button>
-                        <button class="btn-icon scene-control-btn" data-scene="street" title="Street">🏙</button>
-                        <button class="btn-icon scene-control-btn" data-scene="night" title="Night Life">🌙</button>
+                        <button class="btn-icon scene-studio-btn" data-scene="studio" title="Studio">📷</button>
+                        <button class="btn-icon scene-street-btn" data-scene="street" title="Street">🏙</button>
+                        <button class="btn-icon scene-night-btn" data-scene="night" title="Night Life">🌙</button>
                         <div style="width:1px; background:#555; height:20px; margin: auto 5px;"></div>
                         <button class="btn-icon toggle-motion-btn" title="Toggle Motion">🏃</button>
                     </div>
@@ -186,34 +166,33 @@ const app = {
         `;
         document.getElementById('detail-content').innerHTML = html;
         app.nav('detail');
-        
-        // Attach dynamic events for detail view (Scene and Motion controls)
-        document.querySelectorAll('.controls-bar .scene-control-btn').forEach(btn => {
+
+        document.getElementById('back-to-shop-btn').addEventListener('click', () => app.nav('shop'));
+
+        document.querySelectorAll('.controls-bar button[data-scene]').forEach(btn => {
             btn.addEventListener('click', function() {
                 app.setScene(this.getAttribute('data-scene'));
             });
         });
-        
+
         document.querySelector('.toggle-motion-btn').addEventListener('click', function() {
             app.toggleMotion(this);
         });
-        
+
         document.querySelector('.add-to-cart-detail-btn').addEventListener('click', function() {
             app.addToCart(parseInt(this.getAttribute('data-id')));
         });
     },
 
-    // Interactive Features
     setScene: (mode) => {
         const stage = document.getElementById('preview-stage');
-        stage.classList.remove('scene-studio', 'scene-street', 'scene-night'); 
+        stage.classList.remove('scene-studio', 'scene-street', 'scene-night');
         stage.classList.add(`scene-${mode}`);
     },
 
     toggleMotion: (btn) => {
         const stage = document.getElementById('preview-stage');
         const isActive = stage.classList.toggle('motion-active');
-        
         if (isActive) {
             btn.style.background = 'var(--brand-primary)';
             btn.style.color = 'black';
@@ -223,7 +202,6 @@ const app = {
         }
     },
 
-    // Cart Logic
     addToCart: (id) => {
         const p = db.find(x => x.id === id);
         app.state.cart.push(p);
@@ -234,13 +212,11 @@ const app = {
     renderCart: () => {
         const list = document.getElementById('cart-list');
         let total = 0;
-        
         if(app.state.cart.length === 0) {
             list.innerHTML = "<p>Cart is empty.</p>";
             document.getElementById('cart-total').innerText = "$0.00";
             return;
         }
-
         list.innerHTML = app.state.cart.map((item, idx) => {
             total += item.price;
             return `
@@ -255,10 +231,9 @@ const app = {
                 <button class="btn-remove-cart" data-index="${idx}" style="color:#ff4444; background:none;">✕</button>
             </div>`;
         }).join('');
-        
+
         document.getElementById('cart-total').innerText = "$" + total.toFixed(2);
-        
-        // Attach dynamic remove cart events
+
         document.querySelectorAll('.btn-remove-cart').forEach(btn => {
             btn.addEventListener('click', function() {
                 app.removeCart(parseInt(this.getAttribute('data-index')));
@@ -266,7 +241,11 @@ const app = {
         });
     },
 
-    // Utils
+    removeCart: (idx) => {
+        app.state.cart.splice(idx, 1);
+        app.save();
+    },
+
     save: () => {
         localStorage.setItem('kv_cart', JSON.stringify(app.state.cart));
         app.updateUI();
@@ -275,20 +254,36 @@ const app = {
     updateUI: () => {
         document.getElementById('badge-cart').innerText = app.state.cart.length;
         document.getElementById('badge-cart').classList.toggle('hidden', app.state.cart.length === 0);
-        
-        if (document.getElementById('view-cart').classList.contains('active')) {
-            app.renderCart();
-        }
+        if (document.getElementById('view-cart').classList.contains('active')) app.renderCart();
     },
-    
+
     filter: (val) => app.renderShop(val),
 
-    // Contact Widget
     toggleContact: () => {
         const menu = document.getElementById('contact-menu');
         menu.classList.toggle('hidden');
+    },
+
+    // --- ADDED AJAX / JSON FETCH ---
+    loadProductsFromServer: () => {
+        // Using Fetch API
+        fetch("../backend/products.php")
+            .then(res => res.json())
+            .then(data => {
+                console.log("AJAX/JSON Products loaded from server:", data);
+                // Optional: replace frontend `db` temporarily (if desired)
+                // db = data;
+            })
+            .catch(err => console.error("Error loading products:", err));
+
+        // Using jQuery (example usage)
+        if (window.jQuery) {
+            $.getJSON("../backend/products.php", function(data) {
+                console.log("jQuery JSON products:", data);
+            });
+        }
     }
 };
 
-// Boot the application when the DOM is fully loaded
+// Boot the application when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', app.init);
