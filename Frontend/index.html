@@ -54,7 +54,8 @@
 
         <section id="view-detail" class="view">
             <button id="back-to-shop-btn" style="color:#888; background:none; margin: 20px 0;">&larr; Back to Shop</button>
-            <div id="detail-content"></div> </section>
+            <div id="detail-content"></div>
+        </section>
 
         <section id="view-cart" class="view">
             <h2 style="margin: 20px 0;">Your Cart</h2>
@@ -70,9 +71,7 @@
                 <h1>Community Vibes</h1>
                 <p style="color: var(--text-muted);">See how our community wears KickVibe in the real world. #KickVibeStyle</p>
             </div>
-            
-            <div class="ugc-grid" id="ugc-container">
-                </div>
+            <div class="ugc-grid" id="ugc-container"></div>
         </section>
         
         <section id="view-about" class="view">
@@ -100,6 +99,69 @@
         </button>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="scripts.js"></script>
+    <script>
+        // ===== Products =====
+        function loadProducts() {
+            $.ajax({
+                url: "https://localhost:7208/api/products",
+                method: "GET",
+                success: function(products) {
+                    let html = "";
+                    products.forEach(p => {
+                        html += `<div class="product-card">
+                                    <h3>${p.name}</h3>
+                                    <p>Price: $${p.price}</p>
+                                    <img src="${p.imageUrl}" width="150"/>
+                                 </div>`;
+                    });
+                    $("#featured-grid, #shop-grid").html(html);
+                },
+                error: function(err) { console.error(err); }
+            });
+        }
+
+        // ===== User Registration =====
+        function registerUser(email, password) {
+            $.ajax({
+                url: "https://localhost:7208/api/users/register",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ email: email, passwordHash: password }),
+                success: function(user) { alert("Registered: " + user.email); },
+                error: function(err) { console.error(err); alert("Registration failed"); }
+            });
+        }
+
+        // ===== User Login =====
+        function loginUser(email, password) {
+            $.ajax({
+                url: "https://localhost:7208/api/users/login",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ email: email, passwordHash: password }),
+                success: function(user) { alert("Logged in: " + user.email); },
+                error: function(err) { console.error(err); alert("Login failed"); }
+            });
+        }
+
+        // ===== Place Orders =====
+        function placeOrder(userId) {
+            $.ajax({
+                url: "https://localhost:7208/api/orders",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ userId: userId }),
+                success: function(order) { alert("Order placed. ID: " + order.id); },
+                error: function(err) { console.error(err); alert("Order failed"); }
+            });
+        }
+
+        $(document).ready(function() {
+            loadProducts(); // Load products on page load
+        });
+    </script>
 </body>
 </html>
